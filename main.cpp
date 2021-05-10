@@ -7,12 +7,6 @@
 #include "stdint.h"
 #include "main.h"
 
-// Starting with the random avatar generator I already created
-// initial thoughts:
-// 1. I won't need any of the randomness or rarity stuff
-// 2. That is about as far as i've thought about things
-// So I guess the first step will be removing all the randomness.
-
 // Count the number of assets within a given directory.
 internal int
 Directory_Count(char *filepath)
@@ -39,35 +33,29 @@ Directory_Count(char *filepath)
 }
 
 internal char 
-*Randomised_Asset(int *asset_id, int rarity_group, char *filepath,
-                  Asset *asset, pcg32_random_t *rng)
+*Choose_Asset(char *filepath, int asset_number)
 {
     DIR *d;
     struct dirent *dir;
 
     int num_count  = 0;
-    int max_assets = Directory_Count(filepath);
 
-    uint32_t rand_num  = (pcg32_random_r(rng) % (max_assets - 2 + 1)) + 2;
-    *asset_id = rand_num + rarity_group;
-    asset->counter[*asset_id] += 1;
-
-    char *random_asset = (char *)malloc(MAX_BUFFER);
-    memset(random_asset, 0, MAX_BUFFER);
+    char *next_asset = (char *)malloc(MAX_BUFFER);
+    memset(next_asset, 0, MAX_BUFFER);
 
     d = opendir(filepath);
     if(d)
     {
         while((dir = readdir(d)) != NULL)
         {
-            if(num_count == rand_num)
+            if(num_count == asset_number)
             {
-               strcpy(random_asset, dir->d_name);
+               strcpy(next_asset, dir->d_name);
             }
             num_count++;
         }
         closedir(d);
-        return random_asset;
+        return next_asset;
     }
 }
 
